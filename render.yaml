@@ -1,0 +1,14 @@
+# Render deployment configuration
+# Deploy this to https://mission-control-dashboard.onrender.com
+
+services:
+  - type: web
+    name: mission-control-dashboard
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: RENDER_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production

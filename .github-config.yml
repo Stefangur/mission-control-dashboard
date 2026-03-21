@@ -1,0 +1,6 @@
+repos:
+  - owner: Stefangur
+    name: mission-control-dashboard
+    branch: main
+    description: "Real-time infrastructure monitoring & control dashboard"
+    template: next-typescript-tailwind
