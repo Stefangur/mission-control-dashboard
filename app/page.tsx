@@ -7,11 +7,15 @@ import LocalDaemonsStatus from '@/components/LocalDaemonsStatus'
 import CronJobsSchedule from '@/components/CronJobsSchedule'
 import RecentAlerts from '@/components/RecentAlerts'
 import QuickActions from '@/components/QuickActions'
+import MemoryDashboard from '@/components/MemoryDashboard'
+
+type TabType = 'dashboard' | 'memory'
 
 export default function Dashboard() {
   const [healthData, setHealthData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard')
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -58,34 +62,70 @@ export default function Dashboard() {
           <p className="text-gray-400">
             Zuletzt aktualisiert: {lastUpdate || 'Wird geladen...'}
           </p>
+          
+          {/* Tab Navigation */}
+          <div className="mt-6 flex gap-4 border-b border-gray-700">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-4 py-3 font-semibold transition-all ${
+                activeTab === 'dashboard'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              📊 System Status
+            </button>
+            <button
+              onClick={() => setActiveTab('memory')}
+              className={`px-4 py-3 font-semibold transition-all ${
+                activeTab === 'memory'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              📝 Memory
+            </button>
+          </div>
         </div>
 
-        {/* Status Overview */}
-        {healthData && (
-          <div className="grid grid-cols-1 gap-6 mb-8">
-            <SystemStatusHeader data={healthData} />
-          </div>
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* Status Overview */}
+            {healthData && (
+              <div className="grid grid-cols-1 gap-6 mb-8">
+                <SystemStatusHeader data={healthData} />
+              </div>
+            )}
+
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column */}
+              <div className="lg:col-span-2 space-y-6">
+                {healthData && <RenderAppsHealth />}
+                {healthData && <LocalDaemonsStatus data={healthData} />}
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                {healthData && <CronJobsSchedule data={healthData} />}
+                <QuickActions />
+              </div>
+            </div>
+
+            {/* Alerts Section */}
+            <div className="mt-8">
+              {healthData && <RecentAlerts data={healthData} />}
+            </div>
+          </>
         )}
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {healthData && <RenderAppsHealth />}
-            {healthData && <LocalDaemonsStatus data={healthData} />}
+        {/* Memory Tab */}
+        {activeTab === 'memory' && (
+          <div className="mt-8">
+            <MemoryDashboard onClose={() => {}} />
           </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            {healthData && <CronJobsSchedule data={healthData} />}
-            <QuickActions />
-          </div>
-        </div>
-
-        {/* Alerts Section */}
-        <div className="mt-8">
-          {healthData && <RecentAlerts data={healthData} />}
-        </div>
+        )}
       </div>
     </div>
   )
