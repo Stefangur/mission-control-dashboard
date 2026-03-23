@@ -7,9 +7,7 @@ import LocalDaemonsStatus from '@/components/LocalDaemonsStatus'
 import CronJobsSchedule from '@/components/CronJobsSchedule'
 import RecentAlerts from '@/components/RecentAlerts'
 import QuickActions from '@/components/QuickActions'
-import MemoryDashboard from '@/components/MemoryDashboard'
-
-type TabType = 'dashboard' | 'memory'
+type TabType = 'dashboard'
 
 export default function Dashboard() {
   const [healthData, setHealthData] = useState(null)
@@ -75,16 +73,14 @@ export default function Dashboard() {
             >
               📊 System Status
             </button>
-            <button
-              onClick={() => setActiveTab('memory')}
-              className={`px-4 py-3 font-semibold transition-all ${
-                activeTab === 'memory'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
+            <a
+              href="https://memory-dashboard.onrender.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-3 font-semibold transition-all text-gray-400 hover:text-gray-300 hover:text-blue-400"
             >
-              📝 Memory
-            </button>
+              📝 Memory →
+            </a>
           </div>
         </div>
 
@@ -120,12 +116,8 @@ export default function Dashboard() {
           </>
         )}
 
-        {/* Memory Tab */}
-        {activeTab === 'memory' && (
-          <div className="mt-8">
-            <MemoryDashboard onClose={() => {}} />
-          </div>
-        )}
+        {/* Memory Tab — External Link */}
+        {/* No rendering needed — link opens https://memory-dashboard.onrender.com */}
       </div>
     </div>
   )
