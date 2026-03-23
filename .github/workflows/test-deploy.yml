@@ -1,0 +1,52 @@
+name: Test & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run linter
+        run: npm run lint --if-present
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Type check
+        run: npm run type-check --if-present || npx tsc --noEmit
+      
+      - name: Test API routes
+        run: |
+          npm start &
+          sleep 5
+          curl -f http://localhost:3000/api/memory/long-term || exit 1
+          curl -f http://localhost:3000/api/memory/dates || exit 1
+          kill %1
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Deploy to Render
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Content-Type: application/json" \
+            -d '{}'
