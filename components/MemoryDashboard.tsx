@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Calendar, Search as SearchIcon } from 'lucide-react'
+import { colors, spacing, typography, borderRadius, fontFamily } from '@/lib/styles'
 
 export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
   const [activeTab, setActiveTab] = useState<'long-term' | 'daily' | 'search'>('long-term')
@@ -14,14 +15,12 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
-  // Load long-term memory and available dates on mount
   useEffect(() => {
     const loadMemoryData = async () => {
       try {
         setLoading(true)
         setError('')
 
-        // Fetch long-term memory
         const longTermRes = await fetch('/api/memory/long-term')
         if (longTermRes.ok) {
           const data = await longTermRes.json()
@@ -30,7 +29,6 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
           setLongTermContent('No long-term memory (MEMORY.md) found yet.')
         }
 
-        // Fetch available daily log dates
         const datesRes = await fetch('/api/memory/dates')
         if (datesRes.ok) {
           const data = await datesRes.json()
@@ -50,7 +48,6 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
     loadMemoryData()
   }, [])
 
-  // Load daily content when selected date changes
   useEffect(() => {
     const loadDailyContent = async () => {
       if (!selectedDate) return
@@ -74,7 +71,6 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
     loadDailyContent()
   }, [selectedDate])
 
-  // Handle search
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
     if (query.trim().length < 2) {
@@ -97,50 +93,46 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
     if (!content) return null
 
     return (
-      <div className="prose prose-invert max-w-none text-sm leading-relaxed">
+      <div>
         {content.split('\n').map((line, idx) => {
-          // Headings
           if (line.startsWith('### ')) {
             return (
-              <h3 key={idx} className="text-lg font-bold text-blue-400 mt-4 mb-2">
+              <h3 key={idx} style={{ ...typography.h3, color: '#60a5fa', marginTop: spacing.md, marginBottom: spacing.sm }}>
                 {line.replace('### ', '')}
               </h3>
             )
           }
           if (line.startsWith('## ')) {
             return (
-              <h2 key={idx} className="text-xl font-bold text-blue-300 mt-6 mb-3">
+              <h2 key={idx} style={{ ...typography.h2, color: '#93c5fd', marginTop: spacing.lg, marginBottom: spacing.md }}>
                 {line.replace('## ', '')}
               </h2>
             )
           }
           if (line.startsWith('# ')) {
             return (
-              <h1 key={idx} className="text-2xl font-bold text-blue-200 mt-8 mb-4">
+              <h1 key={idx} style={{ fontSize: '1.5rem', fontWeight: 700, color: '#bfdbfe', marginTop: spacing.xl, marginBottom: spacing.lg }}>
                 {line.replace('# ', '')}
               </h1>
             )
           }
 
-          // Bullet points
           if (line.startsWith('- ') || line.startsWith('* ')) {
             return (
-              <div key={idx} className="ml-4 mb-1 flex gap-2">
-                <span className="text-blue-400 flex-shrink-0">•</span>
-                <span className="text-gray-300">{line.slice(2)}</span>
+              <div key={idx} style={{ marginLeft: spacing.md, marginBottom: spacing.xs, display: 'flex', gap: spacing.sm }}>
+                <span style={{ color: '#60a5fa', flexShrink: 0 }}>•</span>
+                <span style={{ color: colors.text.secondary }}>{line.slice(2)}</span>
               </div>
             )
           }
 
-          // Empty lines
           if (line.trim().length === 0) {
-            return <div key={idx} className="h-2"></div>
+            return <div key={idx} style={{ height: spacing.xs }}></div>
           }
 
-          // Regular text
           if (line.trim().length > 0) {
             return (
-              <p key={idx} className="text-gray-300 mb-2">
+              <p key={idx} style={{ color: colors.text.secondary, marginBottom: spacing.sm, fontSize: typography.body.fontSize }}>
                 {line}
               </p>
             )
@@ -152,43 +144,178 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
     )
   }
 
+  const containerStyle: React.CSSProperties = {
+    width: '100%',
+  }
+
+  const headerStyle: React.CSSProperties = {
+    marginBottom: spacing.lg,
+  }
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    color: colors.text.primary,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  }
+
+  const navStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: 0,
+    borderBottom: `1px solid ${colors.border.default}`,
+  }
+
+  const navButtonStyle = (isActive: boolean): React.CSSProperties => ({
+    padding: `0.5rem 1rem`,
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    color: isActive ? '#60a5fa' : colors.text.secondary,
+    borderBottom: isActive ? '2px solid #60a5fa' : 'none',
+    background: 'transparent',
+    border: isActive ? undefined : 'none',
+    cursor: 'pointer',
+    marginBottom: '-1px',
+  })
+
+  const contentAreaStyle: React.CSSProperties = {
+    background: 'rgba(31, 41, 55, 0.3)',
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    border: `1px solid ${colors.border.default}`,
+    minHeight: '600px',
+  }
+
+  const loadingStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  }
+
+  const loadingContentStyle: React.CSSProperties = {
+    textAlign: 'center',
+  }
+
+  const errorStyle: React.CSSProperties = {
+    color: '#fca5a5',
+    padding: spacing.md,
+    background: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: borderRadius.sm,
+    border: `1px solid ${colors.status.danger}`,
+  }
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 3fr',
+    gap: spacing.md,
+  }
+
+  const dateSelectorStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  }
+
+  const dateSelectorLabelStyle: React.CSSProperties = {
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    color: colors.text.secondary,
+  }
+
+  const datesListStyle: React.CSSProperties = {
+    display: 'grid',
+    gap: spacing.sm,
+    maxHeight: '396px',
+    overflowY: 'auto',
+  }
+
+  const dateButtonStyle = (isSelected: boolean): React.CSSProperties => ({
+    width: '100%',
+    textAlign: 'left',
+    padding: `0.5rem 0.75rem`,
+    borderRadius: borderRadius.sm,
+    transition: 'all 0.3s ease',
+    fontSize: typography.small.fontSize,
+    background: isSelected ? '#2563eb' : colors.background.card,
+    color: isSelected ? colors.text.primary : colors.text.secondary,
+    border: 'none',
+    cursor: 'pointer',
+  })
+
+  const searchInputStyle: React.CSSProperties = {
+    width: '100%',
+    paddingLeft: '2.5rem',
+    paddingRight: '1rem',
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+    background: colors.background.card,
+    border: `1px solid ${colors.border.default}`,
+    borderRadius: borderRadius.sm,
+    color: colors.text.primary,
+    fontSize: typography.body.fontSize,
+  }
+
+  const searchResultsStyle: React.CSSProperties = {
+    display: 'grid',
+    gap: spacing.md,
+  }
+
+  const resultCardStyle: React.CSSProperties = {
+    background: 'rgba(31, 41, 55, 0.5)',
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
+    border: `1px solid ${colors.border.default}`,
+    transition: 'all 0.3s ease',
+  }
+
+  const resultTitleStyle: React.CSSProperties = {
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    color: '#60a5fa',
+    marginBottom: spacing.sm,
+  }
+
+  const resultPreviewStyle: React.CSSProperties = {
+    fontSize: typography.small.fontSize,
+    color: colors.text.secondary,
+  }
+
   return (
-    <div className="w-full">
+    <div style={containerStyle}>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-4">
+      <div style={headerStyle}>
+        <h2 style={titleStyle}>
           <span>📝</span> Memory Dashboard
         </h2>
-        
+
         {/* Tab Navigation */}
-        <div className="flex gap-0 border-b border-gray-700">
+        <div style={navStyle}>
           <button
             onClick={() => setActiveTab('long-term')}
-            className={`px-4 py-2 font-semibold transition-all ${
-              activeTab === 'long-term'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={navButtonStyle(activeTab === 'long-term')}
           >
             Long-term Memory
           </button>
           <button
             onClick={() => setActiveTab('daily')}
-            className={`px-4 py-2 font-semibold transition-all ${
-              activeTab === 'daily'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={navButtonStyle(activeTab === 'daily')}
           >
             Daily Logs
           </button>
           <button
             onClick={() => setActiveTab('search')}
-            className={`px-4 py-2 font-semibold transition-all ${
-              activeTab === 'search'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={navButtonStyle(activeTab === 'search')}
           >
             Search
           </button>
@@ -196,67 +323,81 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Content Area */}
-      <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700 min-h-[600px]">
+      <div style={contentAreaStyle}>
         {loading && activeTab !== 'search' ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-              <p className="text-gray-400">Loading memory...</p>
+          <div style={loadingStyle}>
+            <div style={loadingContentStyle}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                border: '4px solid rgba(37, 99, 235, 0.2)',
+                borderTopColor: '#2563eb',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 0.5rem',
+              }}></div>
+              <p style={{ color: colors.text.secondary }}>Loading memory...</p>
             </div>
           </div>
         ) : error ? (
-          <div className="text-red-400 p-4 bg-red-900/20 rounded border border-red-700">
-            {error}
-          </div>
+          <div style={errorStyle}>{error}</div>
         ) : activeTab === 'long-term' ? (
-          <div className="space-y-4">
+          <div style={{ display: 'grid', gap: spacing.md }}>
             {longTermContent ? (
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+              <div style={{ background: 'rgba(31, 41, 55, 0.5)', borderRadius: borderRadius.sm, padding: spacing.md, border: `1px solid ${colors.border.default}` }}>
                 {renderMarkdown(longTermContent)}
               </div>
             ) : (
-              <div className="text-gray-400 italic p-4">
+              <div style={{ color: colors.text.secondary, fontStyle: 'italic', padding: spacing.md }}>
                 No long-term memory created yet. Create a MEMORY.md file in your workspace.
               </div>
             )}
           </div>
         ) : activeTab === 'daily' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div style={gridStyle}>
             {/* Date Selector */}
-            <div className="lg:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-4 h-4 text-blue-400" />
-                <h3 className="font-semibold text-gray-300">Available Dates</h3>
+            <div>
+              <div style={dateSelectorStyle}>
+                <Calendar style={{ width: '16px', height: '16px', color: '#60a5fa' }} />
+                <h3 style={dateSelectorLabelStyle}>Available Dates</h3>
               </div>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div style={datesListStyle}>
                 {dailyFiles.length > 0 ? (
                   dailyFiles.map((file) => (
                     <button
                       key={file.date}
                       onClick={() => setSelectedDate(file.date)}
-                      className={`w-full text-left px-3 py-2 rounded transition-colors text-sm ${
-                        selectedDate === file.date
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      }`}
+                      style={dateButtonStyle(selectedDate === file.date)}
+                      onMouseEnter={(e) => {
+                        if (selectedDate !== file.date) {
+                          e.currentTarget.style.background = colors.background.cardHover;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedDate !== file.date) {
+                          e.currentTarget.style.background = colors.background.card;
+                        }
+                      }}
                     >
                       {file.date}
                     </button>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-sm italic">No daily logs found</p>
+                  <p style={{ color: colors.text.secondary, fontSize: typography.small.fontSize, fontStyle: 'italic' }}>
+                    No daily logs found
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Daily Content */}
-            <div className="lg:col-span-3">
+            <div>
               {selectedDate && dailyContent ? (
-                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                <div style={{ background: 'rgba(31, 41, 55, 0.5)', borderRadius: borderRadius.sm, padding: spacing.md, border: `1px solid ${colors.border.default}` }}>
                   {renderMarkdown(dailyContent)}
                 </div>
               ) : (
-                <div className="text-gray-400 italic p-4">
+                <div style={{ color: colors.text.secondary, fontStyle: 'italic', padding: spacing.md }}>
                   {selectedDate ? 'Failed to load log' : 'Select a date to view its log'}
                 </div>
               )}
@@ -264,36 +405,35 @@ export default function MemoryDashboard({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           // Search Tab
-          <div className="space-y-4">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div style={{ display: 'grid', gap: spacing.md }}>
+            <div style={{ position: 'relative' }}>
+              <SearchIcon style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: colors.text.secondary }} />
               <input
                 type="text"
                 placeholder="Search across all memory files..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                style={searchInputStyle}
               />
             </div>
 
             {searchQuery.trim().length < 2 ? (
-              <div className="text-gray-400 italic p-4">
+              <div style={{ color: colors.text.secondary, fontStyle: 'italic', padding: spacing.md }}>
                 Enter at least 2 characters to search
               </div>
             ) : searchResults.length === 0 ? (
-              <div className="text-gray-400 italic p-4">
+              <div style={{ color: colors.text.secondary, fontStyle: 'italic', padding: spacing.md }}>
                 No results found for "{searchQuery}"
               </div>
             ) : (
-              <div className="space-y-4">
-                <p className="text-gray-400 text-sm">{searchResults.length} results found</p>
+              <div style={searchResultsStyle}>
+                <p style={{ color: colors.text.secondary, fontSize: typography.small.fontSize }}>
+                  {searchResults.length} results found
+                </p>
                 {searchResults.map((result, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 hover:border-blue-500 transition-colors"
-                  >
-                    <h4 className="font-semibold text-blue-400 mb-2">{result.file}</h4>
-                    <p className="text-gray-300 text-sm">{result.preview}</p>
+                  <div key={idx} style={resultCardStyle}>
+                    <h4 style={resultTitleStyle}>{result.file}</h4>
+                    <p style={resultPreviewStyle}>{result.preview}</p>
                   </div>
                 ))}
               </div>
