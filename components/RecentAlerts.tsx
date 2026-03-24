@@ -1,17 +1,70 @@
 'use client'
 
+import { colors, spacing, typography, borderRadius, styles } from '@/lib/styles'
+
 export default function RecentAlerts({ data }: any) {
   if (!data?.recentAlerts) return null
 
-  const alerts = data.recentAlerts.slice(0, 5) // Show last 5
+  const alerts = data.recentAlerts.slice(0, 5)
+
+  const cardStyle: React.CSSProperties = {
+    ...styles.card,
+  }
+
+  const titleStyle: React.CSSProperties = {
+    ...typography.h3,
+    marginBottom: spacing.md,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+  }
+
+  const noAlertsStyle: React.CSSProperties = {
+    textAlign: 'center',
+    padding: spacing.lg,
+    color: colors.text.secondary,
+    fontSize: typography.body.fontSize,
+  }
+
+  const alertsListStyle: React.CSSProperties = {
+    display: 'grid',
+    gap: spacing.sm,
+    maxHeight: '256px',
+    overflowY: 'auto',
+  }
+
+  const alertItemStyle = (severity: string): React.CSSProperties => {
+    const isError = severity === 'error';
+    return {
+      padding: spacing.sm,
+      borderRadius: borderRadius.sm,
+      fontSize: typography.small.fontSize,
+      borderLeft: `4px solid ${isError ? colors.status.danger : colors.status.warning}`,
+      background: isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+      color: isError ? '#fecaca' : '#fef08a',
+    }
+  }
+
+  const alertMessageStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  }
+
+  const alertTimeStyle: React.CSSProperties = {
+    fontSize: typography.label.fontSize,
+    color: colors.text.secondary,
+    whiteSpace: 'nowrap',
+  }
 
   if (alerts.length === 0) {
     return (
-      <div className="card">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+      <div style={cardStyle}>
+        <h2 style={titleStyle}>
           <span>📋</span> Recent Alerts (24h)
         </h2>
-        <div className="text-center py-8 text-gray-400">
+        <div style={noAlertsStyle}>
           ✅ Keine Warnungen in letzten 24 Stunden
         </div>
       </div>
@@ -19,24 +72,20 @@ export default function RecentAlerts({ data }: any) {
   }
 
   return (
-    <div className="card">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+    <div style={cardStyle}>
+      <h2 style={titleStyle}>
         <span>📋</span> Recent Alerts (24h)
       </h2>
 
-      <div className="space-y-2 max-h-64 overflow-y-auto">
+      <div style={alertsListStyle}>
         {alerts.map((alert: any) => (
           <div
             key={alert.id}
-            className={`p-3 rounded text-sm border-l-4 ${
-              alert.severity === 'error'
-                ? 'border-l-red-500 bg-red-900/10 text-red-200'
-                : 'border-l-yellow-500 bg-yellow-900/10 text-yellow-200'
-            }`}
+            style={alertItemStyle(alert.severity)}
           >
-            <div className="flex justify-between items-start gap-2">
-              <p className="flex-1">{alert.message}</p>
-              <span className="text-xs text-gray-400 whitespace-nowrap">
+            <div style={alertMessageStyle}>
+              <p style={{ flex: 1 }}>{alert.message}</p>
+              <span style={alertTimeStyle}>
                 {new Date(alert.timestamp).toLocaleTimeString('de-DE')}
               </span>
             </div>

@@ -1,36 +1,82 @@
 'use client'
 
+import { colors, spacing, typography, borderRadius, styles } from '@/lib/styles'
+
 export default function CronJobsSchedule({ data }: any) {
   if (!data?.cronJobs) return null
 
+  const cardStyle: React.CSSProperties = {
+    ...styles.card,
+  }
+
+  const titleStyle: React.CSSProperties = {
+    ...typography.h3,
+    marginBottom: spacing.md,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+  }
+
+  const jobsContainerStyle: React.CSSProperties = {
+    display: 'grid',
+    gap: spacing.sm,
+  }
+
+  const jobItemStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.sm,
+    background: colors.background.card,
+    borderRadius: borderRadius.sm,
+    transition: 'all 0.3s ease',
+  }
+
+  const jobTimeStyle: React.CSSProperties = {
+    textAlign: 'center',
+    minWidth: '48px',
+    fontSize: typography.h3.fontSize,
+    fontWeight: 700,
+    color: '#3b82f6',
+  }
+
+  const jobNameStyle: React.CSSProperties = {
+    flex: 1,
+    fontSize: typography.small.fontSize,
+    color: colors.text.primary,
+  }
+
+  const statusBadgeStyle = (active: boolean): React.CSSProperties => ({
+    padding: `${spacing.xs} 0.5rem`,
+    fontSize: typography.label.fontSize,
+    borderRadius: borderRadius.sm,
+    background: active ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 114, 128, 0.2)',
+    color: active ? colors.status.success : colors.text.secondary,
+    fontWeight: 500,
+  })
+
   return (
-    <div className="card">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+    <div style={cardStyle}>
+      <h2 style={titleStyle}>
         <span>📅</span> Cron Schedule
       </h2>
 
-      <div className="space-y-3">
+      <div style={jobsContainerStyle}>
         {data.cronJobs.map((job: any, idx: number) => (
           <div
             key={idx}
-            className="flex items-center gap-3 p-3 bg-gray-700 rounded"
+            style={jobItemStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = colors.background.cardHover;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = colors.background.card;
+            }}
           >
-            <div className="text-center min-w-12">
-              <p className="font-bold text-lg text-blue-400">{job.time}</p>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm">{job.name}</p>
-            </div>
-            <div className="text-xs">
-              {job.active ? (
-                <span className="px-2 py-1 bg-green-900/40 text-green-400 rounded">
-                  Aktiv
-                </span>
-              ) : (
-                <span className="px-2 py-1 bg-gray-600 text-gray-400 rounded">
-                  Inaktiv
-                </span>
-              )}
+            <div style={jobTimeStyle}>{job.time}</div>
+            <div style={jobNameStyle}>{job.name}</div>
+            <div style={statusBadgeStyle(job.active)}>
+              {job.active ? 'Aktiv' : 'Inaktiv'}
             </div>
           </div>
         ))}

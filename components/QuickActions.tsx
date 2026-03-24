@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { colors, spacing, typography, borderRadius, styles } from '@/lib/styles'
 
 export default function QuickActions() {
   const [loading, setLoading] = useState<string | null>(null)
@@ -8,10 +9,8 @@ export default function QuickActions() {
   const handleAction = async (action: string) => {
     setLoading(action)
     try {
-      // In production, these would call actual endpoints
       const response = await fetch(`/api/actions/${action}`, { method: 'POST' })
       if (response.ok) {
-        // Show success notification
         alert(`✅ ${action} erfolgreich ausgeführt!`)
       }
     } catch (error) {
@@ -21,59 +20,99 @@ export default function QuickActions() {
     }
   }
 
+  const cardStyle: React.CSSProperties = {
+    ...styles.card,
+  }
+
+  const titleStyle: React.CSSProperties = {
+    ...typography.h3,
+    marginBottom: spacing.md,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+  }
+
+  const actionsContainerStyle: React.CSSProperties = {
+    display: 'grid',
+    gap: spacing.sm,
+  }
+
+  const getActionButtonStyle = (
+    color: string,
+    isLoading: boolean
+  ): React.CSSProperties => ({
+    width: '100%',
+    padding: `${spacing.md} 1rem`,
+    borderRadius: borderRadius.sm,
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    color: 'white',
+    border: 'none',
+    cursor: isLoading ? 'wait' : 'pointer',
+    background: color,
+    opacity: isLoading ? 0.5 : 1,
+  })
+
   const Action = ({
     label,
     icon,
     action,
-    color,
+    bgColor,
   }: {
     label: string
     icon: string
     action: string
-    color: string
+    bgColor: string
   }) => (
     <button
       onClick={() => handleAction(action)}
       disabled={loading !== null}
-      className={`w-full py-3 px-4 rounded font-semibold transition-all ${color} ${
-        loading === action ? 'opacity-50 cursor-wait' : 'hover:shadow-lg'
-      }`}
+      style={getActionButtonStyle(bgColor, loading === action)}
+      onMouseEnter={(e) => {
+        if (loading === null) {
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = 'none';
+      }}
     >
-      <span className="mr-2">{icon}</span>
+      <span style={{ marginRight: spacing.xs }}>{icon}</span>
       {loading === action ? 'Lädt...' : label}
     </button>
   )
 
   return (
-    <div className="card">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+    <div style={cardStyle}>
+      <h2 style={titleStyle}>
         <span>⚡</span> Quick Actions
       </h2>
 
-      <div className="space-y-2">
+      <div style={actionsContainerStyle}>
         <Action
           label="Trader Daemon"
           icon="🔄"
           action="restart-trader"
-          color="bg-blue-600 hover:bg-blue-700 text-white"
+          bgColor="#2563eb"
         />
         <Action
           label="Force Briefing"
           icon="📊"
           action="force-briefing"
-          color="bg-purple-600 hover:bg-purple-700 text-white"
+          bgColor="#9333ea"
         />
         <Action
           label="System Logs"
           icon="📝"
           action="view-logs"
-          color="bg-gray-700 hover:bg-gray-600 text-white"
+          bgColor="#6b7280"
         />
         <Action
           label="Health Check"
           icon="🏥"
           action="health-check"
-          color="bg-green-600 hover:bg-green-700 text-white"
+          bgColor="#16a34a"
         />
       </div>
     </div>

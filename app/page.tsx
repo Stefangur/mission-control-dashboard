@@ -7,6 +7,8 @@ import LocalDaemonsStatus from '@/components/LocalDaemonsStatus'
 import CronJobsSchedule from '@/components/CronJobsSchedule'
 import RecentAlerts from '@/components/RecentAlerts'
 import QuickActions from '@/components/QuickActions'
+import { colors, spacing, typography, borderRadius, fontFamily } from '@/lib/styles'
+
 type TabType = 'dashboard'
 
 export default function Dashboard() {
@@ -33,43 +35,153 @@ export default function Dashboard() {
     }
 
     fetchHealth()
-    const interval = setInterval(fetchHealth, 5000) // Update every 5 seconds
+    const interval = setInterval(fetchHealth, 5000)
 
     return () => clearInterval(interval)
   }, [])
 
+  const pageStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    background: colors.gradient,
+    color: colors.text.primary,
+    fontFamily,
+    padding: spacing.md,
+  }
+
+  const containerStyle: React.CSSProperties = {
+    maxWidth: '1280px',
+    margin: '0 auto',
+  }
+
+  const headerStyle: React.CSSProperties = {
+    marginBottom: spacing.lg,
+  }
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '2rem',
+    fontWeight: 700,
+    marginBottom: spacing.sm,
+    display: 'flex',
+    alignItems: 'center',
+    gap: spacing.sm,
+  }
+
+  const subtitleStyle: React.CSSProperties = {
+    color: colors.text.secondary,
+    fontSize: typography.body.fontSize,
+  }
+
+  const navStyle: React.CSSProperties = {
+    marginTop: spacing.md,
+    display: 'flex',
+    gap: spacing.md,
+    borderBottom: `1px solid ${colors.border.default}`,
+  }
+
+  const navButtonStyle = (active: boolean): React.CSSProperties => ({
+    padding: `${spacing.sm} 1rem`,
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    color: active ? '#3b82f6' : colors.text.secondary,
+    borderBottom: active ? '2px solid #3b82f6' : 'none',
+    background: 'transparent',
+    border: active ? undefined : 'none',
+    cursor: 'pointer',
+    marginBottom: '-1px',
+  })
+
+  const navLinkStyle: React.CSSProperties = {
+    padding: `${spacing.sm} 1rem`,
+    fontSize: typography.body.fontSize,
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    color: colors.text.secondary,
+    textDecoration: 'none',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    marginBottom: '-1px',
+  }
+
+  const loadingContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+  }
+
+  const loadingContentStyle: React.CSSProperties = {
+    textAlign: 'center',
+  }
+
+  const spinnerStyle: React.CSSProperties = {
+    width: '48px',
+    height: '48px',
+    border: '4px solid rgba(59, 130, 246, 0.2)',
+    borderTopColor: '#3b82f6',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 1rem',
+  }
+
+  const gridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  }
+
+  const mainGridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: spacing.md,
+  }
+
+  const alertsSectionStyle: React.CSSProperties = {
+    marginTop: spacing.lg,
+  }
+
   if (loading && !healthData) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Mission Control initialisiert...</p>
+      <div style={pageStyle}>
+        <div style={loadingContainerStyle}>
+          <div style={loadingContentStyle}>
+            <style>{`
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+            <div style={spinnerStyle}></div>
+            <p style={{ color: colors.text.secondary }}>Mission Control initialisiert...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div style={pageStyle}>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      <div style={containerStyle}>
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-            <span className="text-2xl">🎛️</span> Mission Control Dashboard
+        <div style={headerStyle}>
+          <h1 style={titleStyle}>
+            <span>🎛️</span> Mission Control Dashboard
           </h1>
-          <p className="text-gray-400">
+          <p style={subtitleStyle}>
             Zuletzt aktualisiert: {lastUpdate || 'Wird geladen...'}
           </p>
-          
+
           {/* Tab Navigation */}
-          <div className="mt-6 flex gap-4 border-b border-gray-700">
+          <div style={navStyle}>
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`px-4 py-3 font-semibold transition-all ${
-                activeTab === 'dashboard'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
+              style={navButtonStyle(activeTab === 'dashboard')}
             >
               📊 System Status
             </button>
@@ -77,7 +189,13 @@ export default function Dashboard() {
               href="https://memory-dashboard.onrender.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-3 font-semibold transition-all text-gray-400 hover:text-gray-300 hover:text-blue-400"
+              style={navLinkStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = colors.text.secondary;
+              }}
             >
               📝 Memory →
             </a>
@@ -89,35 +207,32 @@ export default function Dashboard() {
           <>
             {/* Status Overview */}
             {healthData && (
-              <div className="grid grid-cols-1 gap-6 mb-8">
+              <div style={gridStyle}>
                 <SystemStatusHeader data={healthData} />
               </div>
             )}
 
             {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div style={mainGridStyle}>
               {/* Left Column */}
-              <div className="lg:col-span-2 space-y-6">
+              <div style={{ display: 'grid', gap: spacing.md }}>
                 {healthData && <RenderAppsHealth />}
                 {healthData && <LocalDaemonsStatus data={healthData} />}
               </div>
 
               {/* Right Column */}
-              <div className="space-y-6">
+              <div style={{ display: 'grid', gap: spacing.md }}>
                 {healthData && <CronJobsSchedule data={healthData} />}
                 <QuickActions />
               </div>
             </div>
 
             {/* Alerts Section */}
-            <div className="mt-8">
+            <div style={alertsSectionStyle}>
               {healthData && <RecentAlerts data={healthData} />}
             </div>
           </>
         )}
-
-        {/* Memory Tab — External Link */}
-        {/* No rendering needed — link opens https://memory-dashboard.onrender.com */}
       </div>
     </div>
   )
