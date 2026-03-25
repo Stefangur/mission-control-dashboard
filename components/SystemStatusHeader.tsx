@@ -47,11 +47,12 @@ export default function SystemStatusHeader({ data }: any) {
 
   const titleStyle: React.CSSProperties = {
     ...typography.h2,
+    color: 'rgba(255, 255, 255, 0.95)',
   }
 
   const timestampStyle: React.CSSProperties = {
     fontSize: typography.small.fontSize,
-    color: colors.text.secondary,
+    color: 'rgba(255, 255, 255, 0.85)',
   }
 
   const gridStyle: React.CSSProperties = {
@@ -68,7 +69,7 @@ export default function SystemStatusHeader({ data }: any) {
 
   const statusLabelStyle: React.CSSProperties = {
     fontSize: typography.label.fontSize,
-    color: colors.text.secondary,
+    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: spacing.xs,
   }
 
@@ -77,6 +78,7 @@ export default function SystemStatusHeader({ data }: any) {
     alignItems: 'center',
     fontSize: typography.body.fontSize,
     fontWeight: 600,
+    color: 'rgba(255, 255, 255, 0.95)',
   }
 
   const dotStyle: React.CSSProperties = {
