@@ -10,7 +10,13 @@ export default function RenderAppsHealth() {
   useEffect(() => {
     const fetchRenderHealth = async () => {
       try {
-        const response = await fetch('/api/render-health')
+        const response = await fetch('/api/render-health', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          }
+        })
         if (response.ok) {
           const data = await response.json()
           setAppsData(data.apps || [])

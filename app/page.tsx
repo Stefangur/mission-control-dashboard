@@ -16,24 +16,31 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const fetchHealth = async () => {
+    try {
+      setIsRefreshing(true)
+      const response = await fetch('/api/health', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setHealthData(data)
+        setLastUpdate(new Date().toLocaleTimeString('de-DE'))
+      }
+    } catch (error) {
+      console.error('Failed to fetch health:', error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchHealth = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/health')
-        if (response.ok) {
-          const data = await response.json()
-          setHealthData(data)
-          setLastUpdate(new Date().toLocaleTimeString('de-DE'))
-        }
-      } catch (error) {
-        console.error('Failed to fetch health:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchHealth()
     const interval = setInterval(fetchHealth, 5000)
 
@@ -170,12 +177,44 @@ export default function Dashboard() {
       <div style={containerStyle}>
         {/* Header */}
         <div style={headerStyle}>
-          <h1 style={titleStyle}>
-            <span>🎛️</span> Mission Control Dashboard
-          </h1>
-          <p style={subtitleStyle}>
-            Zuletzt aktualisiert: {lastUpdate || 'Wird geladen...'}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md }}>
+            <div style={{ flex: 1 }}>
+              <h1 style={titleStyle}>
+                <span>🎛️</span> Mission Control Dashboard
+              </h1>
+              <p style={subtitleStyle}>
+                Zuletzt aktualisiert: {lastUpdate || 'Wird geladen...'} {isRefreshing && '⏳'}
+              </p>
+            </div>
+            {/* ✅ REFRESH BUTTON */}
+            <button
+              onClick={fetchHealth}
+              disabled={isRefreshing}
+              style={{
+                padding: '0.5rem 1rem',
+                background: isRefreshing ? 'rgba(107, 114, 128, 0.5)' : 'rgba(59, 130, 246, 0.2)',
+                color: isRefreshing ? 'rgba(255, 255, 255, 0.5)' : '#3b82f6',
+                border: `1px solid ${isRefreshing ? 'rgba(107, 114, 128, 0.3)' : '#3b82f6'}`,
+                borderRadius: borderRadius.sm,
+                cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                fontSize: typography.small.fontSize,
+                fontWeight: 600,
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                }
+              }}
+            >
+              {isRefreshing ? '⏳ Aktualisiere...' : '🔄 Aktualisieren'}
+            </button>
+          </div>
 
           {/* Tab Navigation */}
           <div style={navStyle}>

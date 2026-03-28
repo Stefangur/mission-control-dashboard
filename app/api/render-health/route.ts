@@ -66,10 +66,17 @@ export async function GET() {
       })
     )
 
-    return Response.json({
+    const response = Response.json({
       apps: healthData,
       timestamp: new Date().toISOString(),
     })
+
+    // ✅ CRITICAL FIX: No-cache headers to prevent stale data
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+
+    return response
   } catch (error) {
     return Response.json(
       { error: 'Render health check failed', details: String(error) },
