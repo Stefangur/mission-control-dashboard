@@ -224,20 +224,6 @@ export default function Dashboard() {
             >
               📊 System Status
             </button>
-            <a
-              href="https://memory-dashboard.onrender.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={navLinkStyle}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = colors.text.secondary;
-              }}
-            >
-              📝 Memory →
-            </a>
           </div>
         </div>
 
